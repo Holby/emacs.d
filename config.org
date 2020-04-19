@@ -1,6 +1,3 @@
-#+Title: Yay-Evil distro by Ian Y.E. Pan
-#+Author: Ian Y.E. Pan
-#+Date: 2019
 Welcome! This Emacs "distro" is based on my personal Emacs configuration (on GNU Emacs 26.3). It's unopinionated and was created for general use in mind. The package settings are grouped in a logical manner, and I've documented as detailed as possible what each code snippet does in this file.
 * Settings without corresponding packages
 Clean up the UI and enhance some basic defaults defined in "C Source Code". The variable ~ian/indent-width~ controls the default indentation across various programming modes. The default is 4, you can change this variable to 2 or any other indentation width you prefer, and the change will be made across all programming language modes including C, C++, Java, JavaScript, Python etc.
@@ -9,8 +6,7 @@ Clean up the UI and enhance some basic defaults defined in "C Source Code". The 
     :preface
     (defvar ian/indent-width 4) ; change this value to your preferred width
     :config
-    (setq frame-title-format '("Yay-Evil") ; Yayyyyy Evil!
-          ring-bell-function 'ignore       ; minimise distraction
+    (setq ring-bell-function 'ignore       ; minimise distraction
           frame-resize-pixelwise t
           default-directory "~/")
 
@@ -211,7 +207,7 @@ Normally, we need to add ~:ensure t~ to tell ~use-package~ to download packages 
     :config
     (dashboard-setup-startup-hook)
     (setq dashboard-startup-banner 'logo
-          dashboard-banner-logo-title "Yay Evil!"
+          dashboard-banner-logo-title "emacs"
           dashboard-items nil
           dashboard-set-footer nil))
 #+END_SRC
@@ -226,54 +222,6 @@ Lightweight syntax highlighting improvement for numbers, operators, and escape s
 
   (use-package highlight-escape-sequences
     :hook (prog-mode . hes-mode))
-#+END_SRC
-** Vi keybindings
-I personally find Vi(m) bindings to be the most efficient way of editing text (especially code). I also changed the default ~:q~ and ~:wq~ to be killing current buffer instead of killing the frame or subsequently killing Emacs.
-#+BEGIN_SRC emacs-lisp
-  (use-package evil
-    :diminish undo-tree-mode
-    :init
-    (setq evil-want-C-u-scroll t
-          evil-want-keybinding nil
-          evil-shift-width ian/indent-width)
-    :hook (after-init . evil-mode)
-    :preface
-    (defun ian/save-and-kill-this-buffer ()
-      (interactive)
-      (save-buffer)
-      (kill-this-buffer))
-    :config
-    (with-eval-after-load 'evil-maps ; avoid conflict with company tooltip selection
-      (define-key evil-insert-state-map (kbd "C-n") nil)
-      (define-key evil-insert-state-map (kbd "C-p") nil))
-    (evil-ex-define-cmd "q" #'kill-this-buffer)
-    (evil-ex-define-cmd "wq" #'ian/save-and-kill-this-buffer))
-#+END_SRC
-Evil-collection covers more parts of Emacs that the original Evil doesn't support (e.g. Packages buffer, eshell, calendar etc.)
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-collection
-    :after evil
-    :config
-    (setq evil-collection-company-use-tng nil)
-    (evil-collection-init))
-#+END_SRC
-Tim Pope's vim commentary package (Use ~gcc~ to comment out a line, ~gc~ to comment out the target of a motion (for example, ~gcap~ to comment out a paragraph), ~gc~ in visual mode to comment out the selection etc.)
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-commentary
-    :after evil
-    :diminish
-    :config (evil-commentary-mode +1))
-#+END_SRC
-Evil keybindings for magit.
-#+BEGIN_SRC emacs-lisp
-  (use-package evil-magit)
-#+END_SRC
-** Git Integration
-Tell magit to automatically put us in vi-insert-mode when committing a change.
-#+BEGIN_SRC emacs-lisp
-  (use-package magit
-    :bind ("C-x g" . magit-status)
-    :config (add-hook 'with-editor-mode-hook #'evil-insert-state))
 #+END_SRC
 ** Searching/sorting enhancements & project management
 *** Ido, ido-vertical, ido-ubiquitous and fuzzy matching
@@ -369,10 +317,4 @@ Provides us with hints on available keystroke combinations.
     (which-key-mode +1)
     (setq which-key-idle-delay 0.4
           which-key-idle-secondary-delay 0.4))
-#+END_SRC
-*** Configure PATH on macOS
-#+BEGIN_SRC emacs-lisp
-  (use-package exec-path-from-shell
-    :config (when (memq window-system '(mac ns x))
-              (exec-path-from-shell-initialize)))
 #+END_SRC
