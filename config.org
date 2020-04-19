@@ -191,6 +191,23 @@ Delete intermediate buffers when navigating through dired.
     :config
     (setq custom-file "~/.emacs.d/to-be-dumped.el"))
 #+END_SRC
+** VHDL-Mode
+#+BEGIN_SRC emacs-lisp
+(use-package vhdl-mode
+    :ensure nil
+    :config
+    (setq flycheck-checker 'vhdl-modelsim)
+    (custom-set-variables
+    '(vhdl-stutter-mode t)
+    '(vhdl-electric-mode t)
+    '(vhdl-indent-tabs-mode nil)
+    '(vhdl-basic-offset 3)
+    '(vhdl-use-direct-instantiation 'always)
+    '(vhdl-standard '(8 nil))
+    ))
+
+#+END_SRC
+
 * Third-party packages
 Many Emacsers love having tons of packages -- and that's absolutely fine! However, one of the goals of the Yay-Evil distro is to provide an essential-only foundation for users to build upon. Therefore, only the most important packages and/or lightweight improvements will be included here. For example, completion frameworks like Ivy or Helm are considered heavy by many, yet the built-in Ido serves almost the same purpose. The only arguably opinionated package is probably Evil, but you probably saw that coming from the distro name, didn't you ;) ? If you prefer the default keybindings, simply disable the section that controls the Evil behaviours.
 
@@ -263,7 +280,110 @@ Use ~C-n~ and ~C-p~ to navigate the tooltip.
 *** Flycheck
 A modern on-the-fly syntax checking extension -- absolute essential
 #+BEGIN_SRC emacs-lisp
-  (use-package flycheck :config (global-flycheck-mode +1))
+(use-package flycheck
+  :config
+  (global-flycheck-mode +1)
+  (flycheck-define-checker vhdl-modelsim
+                    "A VHDL syntax checker using Modelsim simulator.
+                                Please See Modelsim Manual, Command 'vcom'."
+                :command ("vcom"
+                      "-lint"
+                      "-work"
+                      "<PATH_TO_WORK_DIR"
+                      source)
+                :error-patterns
+                ((warning line-start "** Warning: " (file-name) "(" line "):" (message) line-end)
+                 (error line-start "** Error: " (file-name) "(" line "):" (message) line-end))
+                :modes vhdl-mode))
+#+END_SRC
+*** lsp Mode
+#+BEGIN_SRC emacs-lisp
+(use-package lsp-mode
+  :config
+  (custom-set-variables
+  '(lsp-vhdl-server 'hdl-checker))
+  (setq lsp-vhdl-server-path "~/.local/bin/hdl_checker")
+  (add-hook 'vhdl-mode-hook 'lsp)
+  )
+#+END_SRC
+*** VHDL-Tools
+#+BEGIN_SRC emacs-lisp
+(use-package vhdl-tools
+  :ensure t
+  :defer t
+  :after vhdl-mode
+  :config
+  (setq vhdl-tools-manage-folding t)
+  :hook (vhdl-mode . (lambda ()
+  (vhdl-tools-mode 1)))
+)
+#+END_SRC
+*** ggtags
+#+BEGIN_SRC emacs-lisp
+(use-package ggtags
+  :hook (vhdl-mode . (lambda ()
+  (ggtags-mode 1)))
+  :config
+  (setenv "GTAGSCONF" "/usr/local/share/gtags/gtags.conf")
+  (defun ggtags-create-tags (root)
+  "Create tag files (e.g. GTAGS) in directory ROOT.
+  If file .globalrc or gtags.conf exists in ROOT, it will be used
+  as configuration file per `ggtags-use-project-gtagsconf'.
+
+  If file gtags.files exists in ROOT, it should be a list of source
+  files to index, which can be used to speed gtags up in large
+  source trees. See Info node `(global)gtags' for details."
+  (interactive "DRoot directory: ")
+  (let ((process-environment (copy-sequence process-environment)))
+    (when (zerop (length root)) (error "No root directory provided"))
+    (setenv "GTAGSROOT" (ggtags-ensure-localname
+                         (expand-file-name
+                          (directory-file-name (file-name-as-directory root)))))
+    (ggtags-with-current-project
+      (let ((conf (and ggtags-use-project-gtagsconf
+                       (cl-loop for name in '(".globalrc" "gtags.conf")
+                                for full = (expand-file-name name root)
+                                thereis (and (file-exists-p full) full)))))
+        (unless (or conf (getenv "GTAGSLABEL")
+                   (setenv "GTAGSLABEL"
+                (ido-completing-read
+                 "Which backend? "
+                 '(("native" 1) ("ctags" 2) ("pygments" 3) ("new-ctags" 4))
+                 nil t))))
+        (ggtags-with-temp-message "`gtags' in progress..."
+          (let ((default-directory (file-name-as-directory root))
+                (args (append (cl-remove-if
+                               #'null
+                               (list (and ggtags-use-idutils "--idutils")
+                                     (and ggtags-use-sqlite3
+                                          (ggtags-process-succeed-p "gtags" "--sqlite3" "--help")
+                                          "--sqlite3")
+                                     (and conf "--gtagsconf")
+                                     (and conf (ggtags-ensure-localname conf))))
+                              ggtags-extra-args)))
+            (condition-case err
+                (apply #'ggtags-process-string "gtags" args)
+              (error (if (and ggtags-use-idutils
+                              (stringp (cadr err))
+                              (string-match-p "mkid not found" (cadr err)))
+                         ;; Retry without mkid
+                         (apply #'ggtags-process-string
+                                "gtags" (cl-remove "--idutils" args))
+                       (signal (car err) (cdr err)))))))))
+    (ggtags-invalidate-buffer-project-root (file-truename root))
+    (message "GTAGS generated in `%s'" root)
+    root))
+)
+#+END_SRC
+*** sr-speedbar
+#+BEGIN_SRC emacs-lisp
+(use-package sr-speedbar
+  :config
+  (custom-set-variables
+  '(sr-speedbar-right-side nil))
+  ;;:hook (vhdl-mode . (lambda ()
+  ;;(sr-speedbar-open)))
+)
 #+END_SRC
 *** Org Mode
 Some minimal org mode tweaks: org-bullets gives our headings (h1, h2, h3...) a more visually pleasing look.
