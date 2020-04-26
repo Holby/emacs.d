@@ -302,7 +302,7 @@ A modern on-the-fly syntax checking extension -- absolute essential
   :config
   (custom-set-variables
   '(lsp-vhdl-server 'hdl-checker))
-  (setq lsp-vhdl-server-path "~/.local/bin/hdl_checker")
+  (setq lsp-vhdl-server-path (concat (getenv "CONDA_PREFIX") "/bin/hdl_checker"))
   (add-hook 'vhdl-mode-hook 'lsp)
   )
 #+END_SRC
@@ -324,7 +324,7 @@ A modern on-the-fly syntax checking extension -- absolute essential
   :hook (vhdl-mode . (lambda ()
   (ggtags-mode 1)))
   :config
-  (setenv "GTAGSCONF" "/usr/local/share/gtags/gtags.conf")
+  (setenv "GTAGSCONF" (concat (getenv "CONDA_PREFIX") "/share/gtags/gtags.conf"))
   (defun ggtags-create-tags (root)
   "Create tag files (e.g. GTAGS) in directory ROOT.
   If file .globalrc or gtags.conf exists in ROOT, it will be used
