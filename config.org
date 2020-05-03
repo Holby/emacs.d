@@ -13,7 +13,7 @@ Clean up the UI and enhance some basic defaults defined in "C Source Code". The 
     (tool-bar-mode -1)
     (menu-bar-mode -1)
 
-    ;; better scrolling experience
+    ;;better scrolling experience
     (setq scroll-margin 0
           scroll-conservatively 10000
           scroll-preserve-screen-position t
@@ -132,7 +132,7 @@ By default, the scrolling is way too fast to be precise and helpful, let's tune 
   (use-package mwheel
     :ensure nil
     :config (setq mouse-wheel-scroll-amount '(1 ((shift) . 1))
-                  mouse-wheel-progressive-speed nil))
+                  mouse-wheel-progressive-speed 1))
 #+END_SRC
 ** Show matching parentheses
 Reduce the highlight delay to instantly.
@@ -150,7 +150,7 @@ Maximise the frame by default on start-up. Set the font to Menlo size 13, if Men
     :config
     (setq initial-frame-alist (quote ((fullscreen . maximized))))
     (when (member "Menlo" (font-family-list))
-      (set-frame-font "menlo-13:weight=regular" t t)))
+      (set-frame-font "menlo-10:weight=regular" t t)))
 #+END_SRC
 ** Ediff tweaks
 Enter ediff with side-by-side buffers to better compare the differences.
@@ -193,18 +193,22 @@ Delete intermediate buffers when navigating through dired.
 #+END_SRC
 ** VHDL-Mode
 #+BEGIN_SRC emacs-lisp
-(use-package vhdl-mode
-    :ensure nil
-    :config
-    (setq flycheck-checker 'vhdl-modelsim)
-    (custom-set-variables
-    '(vhdl-stutter-mode t)
-    '(vhdl-electric-mode t)
-    '(vhdl-indent-tabs-mode nil)
-    '(vhdl-basic-offset 3)
-    '(vhdl-use-direct-instantiation 'always)
-    '(vhdl-standard '(8 nil))
-    ))
+  (use-package vhdl-mode
+      :ensure nil
+      :config
+      ;; Fix compatibility with speedbar 1.0
+      (defun speedbar-files-line-path (&optional depth)
+      (speedbar-files-line-directory depth))
+
+      (setq flycheck-checker 'vhdl-modelsim)
+      (custom-set-variables
+      '(vhdl-stutter-mode t)
+      '(vhdl-electric-mode t)
+      '(vhdl-indent-tabs-mode nil)
+      '(vhdl-basic-offset 3)
+      '(vhdl-use-direct-instantiation 'always)
+      ;;'(vhdl-standard '(8 nil))
+  ))
 
 #+END_SRC
 
@@ -283,13 +287,17 @@ A modern on-the-fly syntax checking extension -- absolute essential
 (use-package flycheck
   :config
   (global-flycheck-mode +1)
+  ;; Check if work exists, else create
+  (setq work-path "~/.emacs.d/modelsim/")
+  (unless (file-directory-p (concat work-path "work")) (make-directory work-path :parents)(shell-command (concat "vlib " work-path "work")))
+
   (flycheck-define-checker vhdl-modelsim
                     "A VHDL syntax checker using Modelsim simulator.
                                 Please See Modelsim Manual, Command 'vcom'."
                 :command ("vcom"
                       "-lint"
                       "-work"
-                      "<PATH_TO_WORK_DIR"
+                      "/home/bj/vhdlTest/work"
                       source)
                 :error-patterns
                 ((warning line-start "** Warning: " (file-name) "(" line "):" (message) line-end)
@@ -377,13 +385,18 @@ A modern on-the-fly syntax checking extension -- absolute essential
 #+END_SRC
 *** sr-speedbar
 #+BEGIN_SRC emacs-lisp
-(use-package sr-speedbar
-  :config
-  (custom-set-variables
-  '(sr-speedbar-right-side nil))
-  ;;:hook (vhdl-mode . (lambda ()
-  ;;(sr-speedbar-open)))
+    (use-package sr-speedbar
+      :init
+      (setq
+      sr-speedbar-width 20
+      sr-speedbar-right-side nil
 )
+
+      :hook (window-setup . (lambda ()
+      (sleep-for 0.05) ;; Needed for some reason...
+      (sr-speedbar-open)
+      ))
+    )
 #+END_SRC
 *** Org Mode
 Some minimal org mode tweaks: org-bullets gives our headings (h1, h2, h3...) a more visually pleasing look.
@@ -410,9 +423,22 @@ Use TAB to expand snippets. The code snippet below also avoids clashing with com
                 :after
                 #'(lambda ()
                     (when (equal tmp/company-point (point))
-                      (yas-expand)))))
+                      (yas-expand))))
+     :hook
+      ;; Yasnippet seems to be redundant for vhdl-mode? Disable for now
+     (vhdl-mode .  (lambda()(yas-minor-mode -1)))
+
+     )
 
   (use-package yasnippet-snippets)
+#+END_SRC
+
+*** diff-hl
+#+BEGIN_SRC emacs-lisp
+  (use-package diff-hl
+    :diminish diff-hl
+    :config
+    (global-diff-hl-mode 1))
 #+END_SRC
 *** Useful major modes
 Markdown mode and JSON mode
