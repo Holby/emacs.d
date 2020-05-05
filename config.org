@@ -448,6 +448,10 @@ Markdown mode and JSON mode
   (use-package json-mode)
 #+END_SRC
 ** Miscellaneous
+*** elpa-mirror
+#+BEGIN_SRC emacs-lisp
+  (use-package elpa-mirror )
+#+END_SRC
 *** Diminish minor modes
 The diminish package is used to hide unimportant minor modes in the modeline. It provides the ~:diminish~ keyword we've been using in other use-package declarations.
 #+BEGIN_SRC emacs-lisp
