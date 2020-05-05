@@ -1,2 +1,0 @@
-;;; Generated package description from /home/bj/.emacs.d/elpa/highlight-operators-20170213.2220/highlight-operators.el  -*- no-byte-compile: t -*-
-(define-package "highlight-operators" "20170213.2220" "a face for operators in programming modes" 'nil :commit "7696b43419505d6e3511ad2781f9f1dd3c55ef8c" :authors '(("Jonathan Kotta" . "jpkotta@gmail.com")) :maintainer '("Jonathan Kotta" . "jpkotta@gmail.com"))
