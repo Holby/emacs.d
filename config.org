@@ -407,6 +407,11 @@ Some minimal org mode tweaks: org-bullets gives our headings (h1, h2, h3...) a m
 
   (use-package org-bullets :hook (org-mode . org-bullets-mode))
 #+END_SRC
+*** org-jira
+Connect to JIRA
+#+BEGIN_SRC emacs-lisp
+  (use-package org-jira)
+#+END_SRC
 *** Yasnippet & yasnippet-snippets
 Use TAB to expand snippets. The code snippet below also avoids clashing with company-mode.
 #+BEGIN_SRC emacs-lisp
@@ -439,6 +444,11 @@ Use TAB to expand snippets. The code snippet below also avoids clashing with com
     :diminish diff-hl
     :config
     (global-diff-hl-mode 1))
+#+END_SRC
+*** groovy-mode
+Groovy
+#+BEGIN_SRC emacs-lisp
+  (use-package groovy-mode)
 #+END_SRC
 *** Useful major modes
 Markdown mode and JSON mode
