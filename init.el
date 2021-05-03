@@ -10,7 +10,7 @@
       file-name-handler-alist nil
       site-run-file nil)
 
-(defvar ian/gc-cons-threshold 20000000)
+(defvar ian/gc-cons-threshold 100000000)
 
 (add-hook 'emacs-startup-hook ; hook run after loading init files
           (lambda ()
@@ -28,9 +28,11 @@
 (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
 (add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
-(add-to-list 'package-archives '("local" . "~/.emacs.d/packages/"))
 (setq package-enable-at-startup nil)
 (package-initialize)
+
+;; workaround bug in Emacs 26.2
+(setq gnutls-algorithm-priority "NORMAL:-VERS-TLS1.3")
 
 ;; Setting up the package manager. Install if missing.
 (unless (package-installed-p 'use-package)
@@ -41,7 +43,7 @@
 
 ;; Load main config file "./config.org"
 (require 'org)
-(org-babel-load-file (expand-file-name "~/.emacs.d/config.org"))
+(org-babel-load-file (expand-file-name (concat user-emacs-directory "config.org")))
 
 (provide 'init)
 ;;; init.el ends here
