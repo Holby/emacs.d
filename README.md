@@ -14,7 +14,7 @@ My personal emacs config, used for VHDL development
 Notes for setup on centos/rhel
 
 #### GCC
-Grap an non acient version of GCC from https://ftp.gnu.org/gnu/gcc/
+Grap an non acient version of GCC from https://ftp.gnu.org/gnu/gcc/ \
 build & install gcc with jit for emacs native compilation feature
 
 
@@ -32,17 +32,21 @@ make install
 export PATH=$HOME/gcc/bin/:$PATH
 export LD_LIBRARY_PATH=$HOME/gcc/lib
 export LIBRARY_PATH=$HOME/gcc/lib
-
 ````
 
 #### Emacs
 Make sure you have the following packages installed
 ````
-yum install -y autoconf make texinfo gtk3-devel libXpm-devel libjpeg-devel giflib-devel libtiff-devel gnutls-devel ncurses-devel jansson-devel ImageMagick-devel libcanberra-gtk3  PackageKit-gtk3-module
+yum install -y autoconf make texinfo gtk3-devel libXpm-devel libjpeg-devel \
+giflib-devel libtiff-devel gnutls-devel ncurses-devel jansson-devel ImageMagick-devel \
+libcanberra-gtk3 PackageKit-gtk3-module \
 
 git clone https://github.com/emacs-mirror/emacs.git --depth 1
 cd emacs
 ./autogen.sh
-./configure --with-json --with-modules --with-threads --with-included-regex --with-x-toolkit=gtk3 --with-zlib --without-sound --with-jpeg --with-png --with-imagemagick --without-dbus --with-mailutils --with-cairo --with-native-compilation
+./configure --with-json --with-modules --with-threads --with-included-regex \
+--with-x-toolkit=gtk3 --with-zlib --without-sound --with-jpeg --with-png 
+\--with-imagemagick --without-dbus --with-mailutils --with-cairo --with-native-compilation
 make -j4 NATIVE_FULL_AOT=1
+make install
 ````
