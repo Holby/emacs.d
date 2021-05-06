@@ -88,8 +88,11 @@ declaration_provider: Some(true),
 definition_provider: Some(true),
 ````
 to:
+````
 declaration_provider: Some(false),
 definition_provider: Some(false),
+````
+
 ````
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 git clone https://github.com/VHDL-LS/rust_hdl.git --depth 1
