@@ -50,7 +50,7 @@ export LIBRARY_PATH=$HOME/gcc/lib
 Make sure you have the following packages installed
 ````
 yum install -y autoconf make texinfo gtk3-devel libXpm-devel libjpeg-devel \
-giflib-devel libtiff-devel gnutls-devel ncurses-devel jansson-devel ImageMagick-devel \
+giflib-devel libtiff-devel gnutls-devel ncurses-devel jansson-devel \
 libcanberra-gtk3 PackageKit-gtk3-module
 
 git clone https://github.com/emacs-mirror/emacs.git --depth 1 emacs_src
@@ -58,7 +58,7 @@ cd emacs_src
 ./autogen.sh
 ./configure --with-json --with-modules --with-threads --with-included-regex \
 --with-x-toolkit=gtk3 --with-zlib --without-sound --with-jpeg --with-png \
---with-imagemagick --without-dbus --with-mailutils --with-cairo --with-native-compilation \
+--without-dbus --with-mailutils --with-cairo --with-native-compilation \
 --prefix=$HOME/emacs
 make -j4 NATIVE_FULL_AOT=1
 make install
