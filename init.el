@@ -16,6 +16,7 @@
           (lambda ()
             (setq gc-cons-threshold ian/gc-cons-threshold
                   gc-cons-percentage 0.1
+                  read-process-output-max (* 1024 1024) ;; 1mb
                   file-name-handler-alist file-name-handler-alist-original)))
 
 (add-hook 'minibuffer-setup-hook (lambda ()
