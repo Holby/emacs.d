@@ -160,10 +160,10 @@ Maximize the frame by default on start-up. Set the font to size 9.
     :preface
     (defun ian/set-default-font ()
       (interactive)
-      (when (member "Consolas" (font-family-list))
-        (set-face-attribute 'default nil :family "Consolas"))
+      (when (member "Iosevka" (font-family-list))
+        (set-face-attribute 'default nil :family "Iosevka"))
       (set-face-attribute 'default nil
-                          :height 90
+                          :height 100
                           :weight 'normal))
     :ensure nil
     :config
@@ -218,15 +218,38 @@ Delete intermediate buffers when navigating through dired.
 #+BEGIN_SRC emacs-lisp
   (use-package vhdl-mode
     :ensure nil
+    :preface
+    ;; Disable lsp-mode before beautify, workaround for ghdl-ls
+    (defun vhdl-beautify-buffer-lsp ()
+      (interactive)
+      (lsp-disconnect)
+      (vhdl-beautify-buffer)
+      (lsp))
+    (defun vhdl-beautify-region-lsp (beg end)
+      (interactive "r")
+      (lsp-disconnect)
+      (vhdl-beautify-region beg end)
+      (lsp))
     :config
     (setq vhdl-stutter-mode t
           vhdl-electric-mode t
           vhdl-indent-tabs-mode nil
           vhdl-basic-offset 3
           vhdl-use-direct-instantiation 'always
+          vhdl-clock-edge-condition 'function
+          vhdl-clock-name "clk"
+          vhdl-reset-name "reset"
+          vhdl-clock-rising-edge t
+          vhdl-reset-active-high t
+          vhdl-reset-kind 'sync
+          vhdl-prompt-for-comments nil
+          vhdl-self-insert-comments nil
+          vhdl-highlight-special-words t
           )
-    )
-
+    :bind (
+           :map vhdl-mode-map
+           ("C-c C-b" . vhdl-beautify-buffer-lsp)
+           ("C-c M-b" . vhdl-beautify-region-lsp)))
 #+END_SRC
 * Third-party packages
 Many Emacsers love having tons of packages -- and that's absolutely
@@ -334,33 +357,36 @@ h3...) a more visually pleasing look.
 *** Useful major modes
 Markdown mode and Web mode, the latter covers our usages of HTML/CSS/JS/JSX/TS/TSX/JSON.
 #+BEGIN_SRC emacs-lisp
-    (use-package markdown-mode
-      :hook (markdown-mode . visual-line-mode))
+  (use-package markdown-mode
+    :hook (markdown-mode . visual-line-mode))
 
-    (use-package web-mode
-      :mode (("\\.html?\\'" . web-mode)
-             ("\\.css\\'"   . web-mode)
-             ("\\.jsx?\\'"  . web-mode)
-             ("\\.tsx?\\'"  . web-mode)
-             ("\\.json\\'"  . web-mode))
-      :config
-      (setq web-mode-markup-indent-offset 2) ; HTML
-      (setq web-mode-css-indent-offset 2)    ; CSS
-      (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
-      (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
+  (use-package web-mode
+    :mode (("\\.html?\\'" . web-mode)
+           ("\\.css\\'"   . web-mode)
+           ("\\.jsx?\\'"  . web-mode)
+           ("\\.tsx?\\'"  . web-mode)
+           ("\\.json\\'"  . web-mode))
+    :config
+    (setq web-mode-markup-indent-offset 2) ; HTML
+    (setq web-mode-css-indent-offset 2)    ; CSS
+    (setq web-mode-code-indent-offset 2)   ; JS/JSX/TS/TSX
+    (setq web-mode-content-types-alist '(("jsx" . "\\.js[x]?\\'"))))
 
-    (use-package diff-hl
-      :diminish diff-hl
-      :config
-      (global-diff-hl-mode 1))
+  (use-package diff-hl
+    :diminish diff-hl
+    :config
+    (global-diff-hl-mode 1))
 
 
-    (use-package groovy-mode)
+  (use-package groovy-mode)
 
-    (use-package elpa-mirror)
+  (use-package elpa-mirror
+    :config
+    (setq elpamr-enable-log t)
+    )
 
-    (use-package good-scroll
-      :hook (after-init . good-scroll-mode))
+  (use-package good-scroll
+    :hook (after-init . good-scroll-mode))
 #+END_SRC
 *** LSP
 Language Server Protocol
