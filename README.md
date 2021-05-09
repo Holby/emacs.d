@@ -99,3 +99,25 @@ git clone https://github.com/VHDL-LS/rust_hdl.git --depth 1
 cd rust_hdl
 cargo build --release
 ````
+
+#### vterm
+Install cmake to be able to complie vterm-module
+Might need to add EPEL repo first:
+````
+wget https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+yum install ./epel-release-latest-*.noarch.rpm
+
+yum install -y cmake3 libtool
+````
+
+
+#### Pyright
+Install Node, then Pyright:
+````
+cd ~
+wget https://nodejs.org/dist/v14.16.1/node-v14.16.1-linux-x64.tar.xz
+tar xvf node-v14.16.1-linux-x64.tar.xz
+PATH=$HOME/node-v14.16.1-linux-x64/bin:$PATH
+
+npm install -g pyright
+````
